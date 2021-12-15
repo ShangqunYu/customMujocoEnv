@@ -12,23 +12,15 @@ import gym
 import time
 import numpy as np
 
+import sys
+sys.path.append('/home/simon/Downloads/stable-baselines3')
+from stable_baselines3 import SAC
 
-env = CustomMujocoEnv(0.5)
 
+env = CustomMujocoEnv(1)
 
-for i in range(10):
-    env.reset()
-    done = False
-    steps = 0 
-    while not done:
-        a = env.action_space.sample()
+obs = env.reset()
 
-        a = np.array((0,2))
-        #breakpoint()
-        
-        obs, reward, done, info = env.step(a)
-
-        env.render()
-
-        steps += 1
-        print("total step:", steps)
+model = SAC("MlpPolicy",  env, learning_starts=10000, verbose=1)
+model.learn(total_timesteps=300000, eval_env=env, eval_freq= 10000, n_eval_episodes=10,log_interval=4, eval_log_path="./logs")
+model.save("sac_reactive_control")
