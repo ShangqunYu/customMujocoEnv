@@ -12,22 +12,23 @@ import gym
 import time
 import numpy as np
 
-OBSTACLE_VELOCITY = 500
-FIRED_BALL = False
 
-env = CustomMujocoEnv()
-
-env.reset()
+env = CustomMujocoEnv(0.5)
 
 
+for i in range(10):
+    env.reset()
+    done = False
+    steps = 0 
+    while not done:
+        a = env.action_space.sample()
 
-steps = 0 
+        a = np.array((0,2))
+        #breakpoint()
+        
+        obs, reward, done, info = env.step(a)
 
-while True:
+        env.render()
 
-    a = env.action_space.sample()
-    print(a)
-    env.step(a)
-    env.render()
-
-    steps += 1
+        steps += 1
+        print("total step:", steps)
