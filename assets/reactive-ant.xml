@@ -19,7 +19,7 @@
   </asset>
   <worldbody>
     <!-- test object -->
-    
+
     <body name="agent_ball_body" pos = "0 0 0.5">
         <!-- <inertial pos="0 0 0" mass="0.179594" diaginertia="8.80012e-05 8.80012e-05 8.80012e-05" /> -->
         <!-- <inertial pos="0 0 0" mass="10" diaginertia="8.80012e-05 8.80012e-05 8.80012e-05" /> -->
