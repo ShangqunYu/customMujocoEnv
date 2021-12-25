@@ -7,7 +7,7 @@ Can MUJOCO dynamically generate models？
 https://www.roboti.us/forum/index.php?threads/can-mujoco-dynamically-generate-models%EF%BC%9F.4224/
 
 '''
-from reactive_env_ant import CustomMujocoEnv
+from box_pushing_env import BoxPushingEnv
 import gym
 import time
 import numpy as np
@@ -17,7 +17,8 @@ sys.path.append('/home/simon/Downloads/stable-baselines3')
 from stable_baselines3 import SAC
 
 
-env = CustomMujocoEnv(1)
+env = BoxPushingEnv()
+
 env.reset_task(0)
 
 obs = env.reset()

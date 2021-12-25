@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 import os
-
 import gym
 from gym import utils
 from gym.envs.mujoco import mujoco_env
@@ -59,7 +58,7 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         colliding_reward = 0
         if self.collision_detection("curbleft") or self.collision_detection("curbright"):
-            self.colliding_with_curb = True
+            self.colliding_with_curb = False
             colliding_reward = self.colliding_reward
 
         # if we haven't passed the door, then we can get reward when pass the door.
@@ -105,7 +104,7 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             done = True
             success = True
             goal_reward = self.goal_reward
-        reward = - ctrl_cost - contact_cost + survive_reward + outside_reward + passing_reward + goal_reward + colliding_reward + distanceToDoorReward + distanceToGoalReward
+        reward =  outside_reward + passing_reward + goal_reward + colliding_reward + distanceToDoorReward + distanceToGoalReward
 
         return (
             ob,
@@ -124,9 +123,11 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         return np.concatenate(
             [
-                self.sim.data.get_body_xpos('agent_ball_body'),
-                np.array([self.sim.data.get_geom_xpos('curbleft')[1]-self.sim.data.get_body_xpos('agent_ball_body')[1]]),
-                self.sim.data.qvel
+                np.array([self.sim.data.get_body_xpos('agent_ball_body')[0] / 10]),
+                np.array([(self.sim.data.get_body_xpos('agent_ball_body')[1]-10) /10]) ,
+                np.array([self.sim.data.get_body_xpos('agent_ball_body')[2]]),
+                np.array([self.sim.data.get_geom_xpos('curbleft')[1]-self.sim.data.get_body_xpos('agent_ball_body')[1]]) / 10,
+                self.sim.data.qvel / 2
             ]
         )
 
@@ -227,7 +228,6 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             curb_y_positions = np.random.uniform(9.9, 10.1, size=(num_tasks,))
             tasks = [{'x_pos_sampler': x_pos_sampler, 'curb_y_pos': curb_y_pos} for x_pos_sampler, curb_y_pos in zip(x_pos_samplers, curb_y_positions)]
         return tasks
-
 
 
 

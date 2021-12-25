@@ -31,11 +31,14 @@
         <joint name="OBJRy" pos="0 0 0" axis="0 1 0" limited="false" damping="0" />
         <joint name="OBJRz" pos="0 0 0" axis="0 0 1" limited="false" damping="0" /> -->
     </body>
-    <geom conaffinity="1" condim="3" material="MatPlane_2" name="goal" pos="0 20 -0.09" rgba="0.6 0.6 0.6 1" size="1 0.1 0" type="cylinder"/>
-    <geom name="curbleft" pos="-5 10 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="10 1 1" type="box"/>
-    <geom name="curbright" pos="0 10 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="10 1 1" type="box"/>
-    <!-- <geom name="curtest" pos="0 9 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="1 1 1" type="box"/> -->
+    <geom conaffinity="1" condim="3" material="MatPlane_2" name="goal" pos="0 10 -0.09" rgba="0.6 0.6 0.6 1" size="1 0.1 0" type="cylinder"/>
+
     <geom name="curend" pos="0 30 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="10 1 1" type="box"/>
+
+    <body name="box" pos="0 2 0.5">
+      <freejoint/>
+      <geom name="objGeom"  pos="0 0 0" size="0.5 0.5 0.5" type="box" mass=".1"/>
+    </body>    
 
 
     <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3" directional="true" exponent="1" pos="0 0 1.3" specular=".1 .1 .1"/>
@@ -45,8 +48,6 @@
   <actuator>
     <velocity ctrllimited="true" ctrlrange="-2.0 2.0" joint="OBJTx" kv=50/>
     <velocity ctrllimited="true" ctrlrange="-2.0 2.0" joint="OBJTy" kv=50/>
-    <!-- <motor ctrllimited="true" ctrlrange="-10.0 10.0" joint="OBJTx" />
-    <motor ctrllimited="true" ctrlrange="-10.0 10.0" joint="OBJTy" /> -->
 
   </actuator>
 </mujoco>
