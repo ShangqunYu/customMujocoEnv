@@ -31,13 +31,13 @@
         <joint name="OBJRy" pos="0 0 0" axis="0 1 0" limited="false" damping="0" />
         <joint name="OBJRz" pos="0 0 0" axis="0 0 1" limited="false" damping="0" /> -->
     </body>
-    <geom conaffinity="1" condim="3" material="MatPlane_2" name="goal" pos="0 10 -0.09" rgba="0.6 0.6 0.6 1" size="1 0.1 0" type="cylinder"/>
+    <geom conaffinity="1" condim="3" material="MatPlane_2" name="goal" pos="0 10 -0.1" rgba="0.6 0.6 0.6 1" size="1 0.1 0" type="cylinder"/>
 
     <geom name="curend" pos="0 30 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="10 1 1" type="box"/>
 
-    <body name="box" pos="0 2 0.5">
+    <body name="box" pos="0 4 0.5">
       <freejoint/>
-      <geom name="objGeom"  pos="0 0 0" size="0.5 0.5 0.5" type="box" mass=".1"/>
+      <geom name="objGeom"  pos="0 0 0" size="0.25 0.25 0.25" type="box" mass=".1"/>
     </body>    
 
 

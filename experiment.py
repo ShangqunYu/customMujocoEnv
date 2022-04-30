@@ -7,7 +7,13 @@ Can MUJOCO dynamically generate models？
 https://www.roboti.us/forum/index.php?threads/can-mujoco-dynamically-generate-models%EF%BC%9F.4224/
 
 '''
+
+
+from ant_easybox import AntEasyBoxEnv
+from ant_mixed_long import AntMixLongEnv
+from ant_box import AntBoxEnv
 from box_pushing_env import BoxPushingEnv
+from custom_ant_goal import CustomMujocoEnv
 import gym
 import time
 import numpy as np
@@ -17,12 +23,12 @@ sys.path.append('/home/simon/Downloads/stable-baselines3')
 from stable_baselines3 import SAC
 
 
-env = BoxPushingEnv()
+env = AntMixLongEnv()
 
-env.reset_task(0)
 
 obs = env.reset()
 
+
 model = SAC("MlpPolicy",  env, learning_starts=10000, verbose=1)
-model.learn(total_timesteps=300000, eval_env=env, eval_freq= 10000, n_eval_episodes=10,log_interval=4, eval_log_path="./logs")
+model.learn(total_timesteps=2000000, eval_env=env, eval_freq= 10000, n_eval_episodes=10,log_interval=4, eval_log_path="./logs")
 model.save("sac_reactive_control")

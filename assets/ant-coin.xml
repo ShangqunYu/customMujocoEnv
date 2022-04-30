@@ -20,64 +20,75 @@
   <worldbody>
     <!-- test object -->
 
+
     <body name="agent_torso" pos="0 0 0.75">
       <camera name="track" mode="trackcom" pos="0 -3 0.3" xyaxes="1 0 0 0 0 1"/>
-      <geom name="agent_torso_geom" pos="0 0 0" size="0.25" type="sphere"/>
+      <geom name="agent_torso_geom" pos="0 0 0" size="0.25" type="sphere" priority = "3"/>
       <joint armature="0" damping="0" limited="false" margin="0.01" name="root" pos="0 0 0" type="free"/>
       <body name="agent_front_left_leg" pos="0 0 0">
-        <geom fromto="0.0 0.0 0.0 0.2 0.2 0.0" name="aux_1_geom" size="0.08" type="capsule"/>
+        <geom fromto="0.0 0.0 0.0 0.2 0.2 0.0" name="aux_1_geom" size="0.08" type="capsule" priority = "3"/>
         <body name="aux_1" pos="0.2 0.2 0">
           <joint axis="0 0 1" name="hip_1" pos="0.0 0.0 0.0" range="-30 30" type="hinge"/>
-          <geom fromto="0.0 0.0 0.0 0.2 0.2 0.0" name="agent_left_leg_geom" size="0.08" type="capsule"/>
+          <geom fromto="0.0 0.0 0.0 0.2 0.2 0.0" name="agent_left_leg_geom" size="0.08" type="capsule" priority = "3"/>
           <body pos="0.2 0.2 0">
             <joint axis="-1 1 0" name="ankle_1" pos="0.0 0.0 0.0" range="30 70" type="hinge"/>
-            <geom fromto="0.0 0.0 0.0 0.4 0.4 0.0" name="agent_left_ankle_geom" size="0.08" type="capsule"/>
+            <geom fromto="0.0 0.0 0.0 0.4 0.4 0.0" name="agent_left_ankle_geom" size="0.08" type="capsule" priority = "3"/>
           </body>
         </body>
       </body>
       <body name="agent_front_right_leg" pos="0 0 0">
-        <geom fromto="0.0 0.0 0.0 -0.2 0.2 0.0" name="aux_2_geom" size="0.08" type="capsule"/>
+        <geom fromto="0.0 0.0 0.0 -0.2 0.2 0.0" name="aux_2_geom" size="0.08" type="capsule" priority = "3"/>
         <body name="aux_2" pos="-0.2 0.2 0">
           <joint axis="0 0 1" name="hip_2" pos="0.0 0.0 0.0" range="-30 30" type="hinge"/>
-          <geom fromto="0.0 0.0 0.0 -0.2 0.2 0.0" name="agent_right_leg_geom" size="0.08" type="capsule"/>
+          <geom fromto="0.0 0.0 0.0 -0.2 0.2 0.0" name="agent_right_leg_geom" size="0.08" type="capsule" priority = "3"/>
           <body pos="-0.2 0.2 0">
             <joint axis="1 1 0" name="ankle_2" pos="0.0 0.0 0.0" range="-70 -30" type="hinge"/>
-            <geom fromto="0.0 0.0 0.0 -0.4 0.4 0.0" name="agent_right_ankle_geom" size="0.08" type="capsule"/>
+            <geom fromto="0.0 0.0 0.0 -0.4 0.4 0.0" name="agent_right_ankle_geom" size="0.08" type="capsule" priority = "3"/>
           </body>
         </body>
       </body>
       <body name="agent_back_leg" pos="0 0 0">
-        <geom fromto="0.0 0.0 0.0 -0.2 -0.2 0.0" name="aux_3_geom" size="0.08" type="capsule"/>
+        <geom fromto="0.0 0.0 0.0 -0.2 -0.2 0.0" name="aux_3_geom" size="0.08" type="capsule" priority = "3"/>
         <body name="aux_3" pos="-0.2 -0.2 0">
           <joint axis="0 0 1" name="hip_3" pos="0.0 0.0 0.0" range="-30 30" type="hinge"/>
-          <geom fromto="0.0 0.0 0.0 -0.2 -0.2 0.0" name="agent_back_leg_geom" size="0.08" type="capsule"/>
+          <geom fromto="0.0 0.0 0.0 -0.2 -0.2 0.0" name="agent_back_leg_geom" size="0.08" type="capsule" priority = "3"/>
           <body pos="-0.2 -0.2 0">
             <joint axis="-1 1 0" name="ankle_3" pos="0.0 0.0 0.0" range="-70 -30" type="hinge"/>
-            <geom fromto="0.0 0.0 0.0 -0.4 -0.4 0.0" name="agent_third_ankle_geom" size="0.08" type="capsule"/>
+            <geom fromto="0.0 0.0 0.0 -0.4 -0.4 0.0" name="agent_third_ankle_geom" size="0.08" type="capsule" priority = "3"/>
           </body>
         </body>
       </body>
       <body name="agent_right_back_leg" pos="0 0 0">
-        <geom fromto="0.0 0.0 0.0 0.2 -0.2 0.0" name="aux_4_geom" size="0.08" type="capsule"/>
+        <geom fromto="0.0 0.0 0.0 0.2 -0.2 0.0" name="aux_4_geom" size="0.08" type="capsule" priority = "3"/>
         <body name="aux_4" pos="0.2 -0.2 0">
           <joint axis="0 0 1" name="hip_4" pos="0.0 0.0 0.0" range="-30 30" type="hinge"/>
-          <geom fromto="0.0 0.0 0.0 0.2 -0.2 0.0" name="agent_rightback_leg_geom" size="0.08" type="capsule"/>
+          <geom fromto="0.0 0.0 0.0 0.2 -0.2 0.0" name="agent_rightback_leg_geom" size="0.08" type="capsule" priority = "3"/>
           <body pos="0.2 -0.2 0">
             <joint axis="1 1 0" name="ankle_4" pos="0.0 0.0 0.0" range="30 70" type="hinge"/>
-            <geom fromto="0.0 0.0 0.0 0.4 -0.4 0.0" name="agent_fourth_ankle_geom" size="0.08" type="capsule"/>
+            <geom fromto="0.0 0.0 0.0 0.4 -0.4 0.0" name="agent_fourth_ankle_geom" size="0.08" type="capsule" priority = "3"/>
           </body>
         </body>
       </body>
     </body>
-    <geom conaffinity="1" condim="3" material="MatPlane_2" name="goal" pos="0 25 -0.09" rgba="0.6 0.6 0.6 1" size="3 0.1 0" type="cylinder"/>
-    <geom name="curbleft" pos="-5 10 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="10 1 1" type="box"/>
-    <geom name="curbright" pos="0 10 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="10 1 1" type="box"/>
-    <!-- <geom name="curtest" pos="0 9 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="1 1 1" type="box"/> -->
-    <geom name="curend" pos="0 30 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="10 1 1" type="box"/>
+<!--    <geom conaffinity="1" condim="3" material="MatPlane_2" name="goal" pos="0 25 -0.09" rgba="0.6 0.6 0.6 1" size="3 0.1 0" type="cylinder"/>-->
+
 
 
     <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3" directional="true" exponent="1" pos="0 0 1.3" specular=".1 .1 .1"/>
-    <geom conaffinity="1" condim="3" material="MatPlane" name="floor" pos="0 0 0" rgba="0.8 0.9 0.8 1" size="10 32 40" type="plane"/>
+    <!-- <geom conaffinity="1" condim="3" material="MatPlane" priority = "2" name="Back_floor" pos="0 25 1" rgba="0.8 0.9 0.8 1" size="10 4 40" type="plane"/> -->
+    <!-- <geom conaffinity="1" condim="3" material="MatPlane" priority = "2" name="floor" pos="0 13 1" rgba="0.8 0.9 0.8 1" size="1 8 40" type="plane"/> -->
+    <geom name="midplane" pos="0 13 -0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" friction="1 1 1" size="10 26 0.5" type="box" priority = "3"/>
+    <!-- <geom name="rock" pos="0 10.5 -0.55" conaffinity="1" rgba="0.9 0.3 0.3 1" size="10 0.5 0.45" type="box" priority = "3"/> -->
+    <!-- <geom conaffinity="1" condim="3" material="MatPlane" priority = "2" name="Front_floor" pos="0 1 1" rgba="0.8 0.9 0.8 1" size="10 4 40" type="plane"/> -->
+
+
+
+    <geom name="coin_geom1" pos= "0 0 0.3" type="sphere" size=".3" condim="3"  rgba="0.2 0.9 0.2 1" />
+
+
+
+    <geom name="coin_geom2" type="sphere" size=".3" condim="3"  pos="0 0 0.3" rgba="0.2 0.9 0.2 1" />
+
 
   </worldbody>
   <actuator>

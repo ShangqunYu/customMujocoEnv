@@ -8,7 +8,7 @@ import math
 
 
 class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
-    def __init__(self, task={}, n_tasks=2, env_type='train', randomize_tasks=True):
+    def __init__(self, task={}, n_tasks=1, env_type='train', randomize_tasks=True):
 
         self._task = task
         self.env_type = env_type
@@ -18,10 +18,11 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._curb_y_pos = 10
 
         self.max_step = 500
-        self.passing_reward = 150
-        self.goal_reward = 300
-        self.outside_reward = -100
+        self.passing_reward = 10
+        self.goal_reward = 20
+        self.outside_reward = -5
         self.floor_width = 10
+        self.corridor_width = 3
         self.colliding_reward = 0
         self.survive_reward = 0
         self.distanceToDoorRewardWeight = 20
@@ -31,7 +32,7 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._outside = False
         self.colliding_with_curb = False
         self._passingDoor = False
-        self.ob_shape = {"joint": [7]}
+        self.ob_shape = {"joint": [29]}
         self.ob_type = self.ob_shape.keys()
         xml_path = os.path.join(os.getcwd(), "assets/reactive-ant.xml")
         mujoco_env.MujocoEnv.__init__(self, xml_path, 5)
@@ -40,14 +41,16 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
     def step(self, a):
         #do the simulation and check how much we moved on the y axis
-        yposbefore = self.get_body_com("agent_ball_body")[1]
+        yposbefore = self.get_body_com("agent_torso")[1]
         distanceToDoorBefore = self.distance_to_door()
         distanceToGoalBefore = self.distance_to_goal()
         self.do_simulation(a, self.frame_skip)
+        #temp stuff
+        #self.render()
         #increment 1 step
         self.current_step += 1
-        yposafter = self.get_body_com("agent_ball_body")[1]
-        agent_xpos = self.get_body_com("agent_ball_body")[0]
+        yposafter = self.get_body_com("agent_torso")[1]
+        agent_xpos = self.get_body_com("agent_torso")[0]
         # forward_reward = (yposafter - yposbefore) / self.dt
 
         #if collide with the wall or went outside, then we shall stop and give agent a big penalty.
@@ -56,10 +59,15 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             self._outside = True
             outside_reward = self.outside_reward
 
+        #we are currently not using colliding reward and collision detection
         colliding_reward = 0
         if self.collision_detection("curbleft") or self.collision_detection("curbright"):
             self.colliding_with_curb = False
             colliding_reward = self.colliding_reward
+
+        #check if the agent got tipped over
+        tipped_over = self.get_body_com("agent_torso")[2]<=0.3 # or self.get_body_com("agent_torso")[2]>=1
+
 
         # if we haven't passed the door, then we can get reward when pass the door.
         passing_reward = 0
@@ -82,52 +90,52 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
 
         #control cost for the agent, I don't think we need it because the ball will just move, leave it for now with a smaller weight.
-        ctrl_cost = 0.5 * np.square(a).sum() * 0.1
+        ctrl_cost = 0 #0.5 * np.square(a).sum()
         #I don't think we will have a contact cost ever.
 
         contact_cost = (
             0.5 * 1e-3 * np.sum(np.square(np.clip(self.sim.data.cfrc_ext, -1, 1)))
         )
         survive_reward = self.survive_reward
-
+        
 
         state = self.state_vector()
         #check when we need to finish the current episode
         done = False
-        if self._outside or self.colliding_with_curb or self.current_step >= self.max_step:
+        if self._outside or self.colliding_with_curb or self.current_step >= self.max_step or tipped_over:
             done = True
         ob = self._get_obs()
+        print("ob:", ob)
 
         goal_reward = 0
         success = False
-        if self.collision_detection('goal'):
+        if distanceToGoalAfter <1:
             done = True
             success = True
             goal_reward = self.goal_reward
-        reward =  outside_reward + passing_reward + goal_reward + colliding_reward + distanceToDoorReward + distanceToGoalReward
-
+        reward =  outside_reward + passing_reward + goal_reward + colliding_reward + distanceToDoorReward + distanceToGoalReward - ctrl_cost
+        #print("contact cost:", contact_cost, 'ctrl_cost', ctrl_cost, "passing_reward", passing_reward, "goal_reward", goal_reward,"distanceToDoorReward",distanceToDoorReward, "distanceToGoalReward", distanceToGoalReward)
         return (
             ob,
             reward,
             done,
             dict(
-                reward_forward=0,
                 reward_ctrl=-ctrl_cost,
-                reward_contact=-contact_cost,
-                reward_survive=survive_reward,
                 success = success,
             ),
         )
     #the new observation is [agent position, curb1 y axis position, agent velocity]
     def _get_obs(self):
 
+        print("xpose:", self.sim.data.qpos.flat[0]/10, "joint pose:", self.sim.data.qpos.flat[2:], "velocity:", self.sim.data.qvel.flat, 
+            "distwall", np.array([self.sim.data.get_geom_xpos('curbleft')[1] - self.sim.data.get_body_xpos('agent_torso')[1]])/10)
+
         return np.concatenate(
             [
-                np.array([self.sim.data.get_body_xpos('agent_ball_body')[0] / 10]),
-                np.array([(self.sim.data.get_body_xpos('agent_ball_body')[1]-10) /10]) ,
-                np.array([self.sim.data.get_body_xpos('agent_ball_body')[2]]),
-                np.array([self.sim.data.get_geom_xpos('curbleft')[1]-self.sim.data.get_body_xpos('agent_ball_body')[1]]) / 10,
-                self.sim.data.qvel / 2
+                [self.sim.data.qpos.flat[0]],
+                self.sim.data.qpos.flat[2:],
+                self.sim.data.qvel.flat,
+                np.array([self.sim.data.get_geom_xpos('curbleft')[1] - self.sim.data.get_body_xpos('agent_torso')[1]]),
             ]
         )
 
@@ -156,7 +164,7 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         idxright = self.model.geom_name2id('curbright')
 
 
-        right_curb_leftend_pos = self.x_pos + 1
+        right_curb_leftend_pos = self.x_pos + self.corridor_width / 2
         right_curb_length = 10 - right_curb_leftend_pos
         right_curb_pos = right_curb_leftend_pos + right_curb_length / 2
 
@@ -165,7 +173,7 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.sim.model.geom_pos[idxright][1] = self._curb_y_pos
         self.sim.model.geom_size[idxright][0] =  right_curb_length / 2
 
-        left_curb_rightend_pos = self.x_pos - 1
+        left_curb_rightend_pos = self.x_pos - self.corridor_width / 2
         left_curb_length = left_curb_rightend_pos + 10
         left_curb_pos = left_curb_rightend_pos - left_curb_length / 2
 
@@ -201,16 +209,16 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def distance_to_door(self):
         door_x = self.x_pos
         door_y = self.sim.data.get_geom_xpos('curbleft')[1]
-        agent_x = self.get_body_com("agent_ball_body")[0]
-        agent_y = self.get_body_com("agent_ball_body")[1]
+        agent_x = self.get_body_com("agent_torso")[0]
+        agent_y = self.get_body_com("agent_torso")[1]
         distance =  math.sqrt((door_x - agent_x) **2 + (door_y - agent_y) **2)
         return distance
 
     def distance_to_goal(self):
         goal_x = self.sim.data.get_geom_xpos('goal')[0]
         goal_y = self.sim.data.get_geom_xpos('goal')[1]
-        agent_x = self.get_body_com("agent_ball_body")[0]
-        agent_y = self.get_body_com("agent_ball_body")[1]
+        agent_x = self.get_body_com("agent_torso")[0]
+        agent_y = self.get_body_com("agent_torso")[1]
         distance =  math.sqrt((goal_x - agent_x) **2 + (goal_y - agent_y) **2)
         return distance
 
@@ -235,7 +243,7 @@ class CustomMujocoEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
 
         self._task = self.tasks[idx]
-        self._x_pos_sampler =  1#self._task['x_pos_sampler']
+        self._x_pos_sampler =  0 # self._task['x_pos_sampler']
         self._curb_y_pos = self._task['curb_y_pos']
         self.x_pos = (self._x_pos_sampler *0.8 + 0.1 )* 20 - 10
 

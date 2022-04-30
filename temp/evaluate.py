@@ -7,8 +7,7 @@ Can MUJOCO dynamically generate models？
 https://www.roboti.us/forum/index.php?threads/can-mujoco-dynamically-generate-models%EF%BC%9F.4224/
 
 '''
-from custom_ant_goal import CustomMujocoEnv
-from ant_mixed_long import AntMixLongEnv
+
 import gym
 import time
 import numpy as np
@@ -18,12 +17,12 @@ from ant_box import AntBoxEnv
 #sys.path.append('/home/simon/Downloads/stable-baselines3')
 from stable_baselines3 import SAC
 
-env = AntMixLongEnv()
+env = AntBoxEnv()
 
-
+env.reset_task()
 obs = env.reset()
-model = SAC.load("logs/best_model")
-number_eval = 50
+model = SAC.load("logs/htmodel")
+number_eval = 10
 all_reward = []
 no_success = 0
 for i in range(number_eval):
@@ -35,7 +34,6 @@ for i in range(number_eval):
         #print("obs", s)
         env.render()
         action, _states = model.predict(s, deterministic=True)
-
         #print("action:", action)
         #action = np.array([0.1,2])
         s, reward, done, info = env.step(action)
@@ -43,9 +41,9 @@ for i in range(number_eval):
         #print("control_cost", info['reward_ctrl'])
         accum_reward += reward
         step += 1
-        if info['subtask_success']:
+        if info['success']:
             print("success")
-            #breakpoint()
+            no_success += 1
     print("total step:", step)
     print("total reward:", accum_reward)
 

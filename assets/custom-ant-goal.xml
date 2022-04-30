@@ -69,16 +69,48 @@
         </body>
       </body>
     </body>
-    <geom conaffinity="1" condim="3" material="MatPlane_2" name="goal" pos="0 25 -0.09" rgba="0.6 0.6 0.6 1" size="3 0.1 0" type="cylinder"/>
-    <geom name="curbleft" pos="-5 10 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="10 1 1" type="box"/>
-    <geom name="curbright" pos="0 10 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="10 1 1" type="box"/>
-    <!-- <geom name="curtest" pos="0 9 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="1 1 1" type="box"/> -->
-    <geom name="curend" pos="0 30 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="10 1 1" type="box"/>
+    <geom name="curbleft0" pos="-5.75 10 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="4.25 1 1" type="box"/>
+    <geom name="curbright0" pos="5.75 10 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="4.25 1 1" type="box"/>
+    <geom name="curbleft1" pos="-5.75 77 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="4.25 1 1" type="box"/>
+    <geom name="curbright1" pos="5.75 77 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="4.25 1 1" type="box"/>
+    <geom name="curbleft2" pos="-5.75 144 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="4.25 1 1" type="box"/>
+    <geom name="curbright2" pos="5.75 144 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="4.25 1 1" type="box"/>
+    <geom name="curbleft3" pos="-5.75 211 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="4.25 1 1" type="box"/>
+    <geom name="curbright3" pos="5.75 211 0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="4.25 1 1" type="box"/>
 
 
     <light cutoff="100" diffuse="1 1 1" dir="-0 0 -1.3" directional="true" exponent="1" pos="0 0 1.3" specular=".1 .1 .1"/>
-    <geom conaffinity="1" condim="3" material="MatPlane" name="floor" pos="0 0 0" rgba="0.8 0.9 0.8 1" size="10 32 40" type="plane"/>
+    <geom name="startplane" pos="0 -5 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 5 0.5" type="box" priority = "3"/>
 
+    <geom name="antgoal0_plane" pos="0 12.5 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 12.5 0.5" type="box" priority = "3"/>
+    <geom name="antbridge0_frontplane" pos="0 27.5 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 2.5 0.5" type="box" priority = "3"/>
+    <geom name="antbridge0_rearplane" pos="0 48.5 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 2.5 0.5" type="box" priority = "3"/>
+    <geom name="antgather0_plane" pos="0 59 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 8 0.5" type="box" priority = "3"/>
+
+    <geom name="antgoal1_plane" pos="0 79.5 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 12.5 0.5" type="box" priority = "3"/>
+    <geom name="antbridge1_frontplane" pos="0 94.5 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 2.5 0.5" type="box" priority = "3"/>
+    <geom name="antbridge1_rearplane" pos="0 115.5 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 2.5 0.5" type="box" priority = "3"/>
+    <geom name="antgather1_plane" pos="0 126 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 8 0.5" type="box" priority = "3"/>
+
+    <geom name="antgoal2_plane" pos="0 146.5 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 12.5 0.5" type="box" priority = "3"/>
+    <geom name="antbridge2_frontplane" pos="0 161.5 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 2.5 0.5" type="box" priority = "3"/>
+    <geom name="antbridge2_rearplane" pos="0 182.5 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 2.5 0.5" type="box" priority = "3"/>
+    <geom name="antgather2_plane" pos="0 193 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 8 0.5" type="box" priority = "3"/>
+
+    <geom name="antgoal3_plane" pos="0 213.5 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 12.5 0.5" type="box" priority = "3"/>
+
+    <geom name="finishplane" pos="0 231 -0.5" conaffinity="1" rgba="0.3 0.3 0.9 1" friction="1 1 1" size="10 5 0.5" type="box" priority = "3"/>
+
+    <geom name="bridge0" pos="0 38 -0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="1.5 8 0.5" type="box" />
+    <geom name="bridge1" pos="0 105 -0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="1.5 8 0.5" type="box" />
+    <geom name="bridge2" pos="0 172 -0.5" conaffinity="1" rgba="0.9 0.3 0.3 1" size="1.5 8 0.5" type="box" />
+
+    <geom name="coin_geom1_0" pos= "0 56 0.3" conaffinity="0" contype="0" type="sphere" size=".3" condim="3"  rgba="0.2 0.9 0.2 1" />
+    <geom name="coin_geom2_0" conaffinity="0" contype="0" type="sphere" size=".3" condim="3"  pos="0 62 0.3" rgba="0.2 0.9 0.2 1" />
+    <geom name="coin_geom1_1" pos= "0 123 0.3" conaffinity="0" contype="0" type="sphere" size=".3" condim="3"  rgba="0.2 0.9 0.2 1" />
+    <geom name="coin_geom2_1" conaffinity="0" contype="0" type="sphere" size=".3" condim="3"  pos="0 129 0.3" rgba="0.2 0.9 0.2 1" />
+    <geom name="coin_geom1_2" pos= "0 190 0.3" conaffinity="0" contype="0" type="sphere" size=".3" condim="3"  rgba="0.2 0.9 0.2 1" />
+    <geom name="coin_geom2_2" conaffinity="0" contype="0" type="sphere" size=".3" condim="3"  pos="0 196 0.3" rgba="0.2 0.9 0.2 1" />
   </worldbody>
   <actuator>
     <motor ctrllimited="true" ctrlrange="-1.0 1.0" joint="hip_4" gear="150"/>
