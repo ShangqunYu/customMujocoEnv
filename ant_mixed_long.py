@@ -115,7 +115,7 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         success = False
         substask_reward = 0
         if subtask_succeed:
-            breakpoint()
+
             self.subtaskid += 1
             substask_reward += self.substask_succeed_weight
         success_reward = 0
@@ -206,9 +206,13 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         task_id_onehot[self.subtaskid] = 1
         return np.concatenate(
             [
+                #xaxis
                 [self.sim.data.qpos.flat[6] / 10],
+                #yaxis
                 np.array([self.sim.data.get_body_xpos('agent_torso')[1] - 168]) / 16.8,
 
+                self.sim.data.qpos.flat[8:],
+                self.sim.data.qvel.flat[6:] / 5,
                 task_id_onehot,
             ]
         )
