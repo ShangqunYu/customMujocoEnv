@@ -9,26 +9,25 @@ import math
 ANT_GATHER_LENGTH = 16
 ANT_GOAL_LENGTH = 25
 ANT_BRIDGE_LENGTH = 26
-ANT_BOX_LENGTH = 26
 
 
-class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
+
+class AntMixEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def __init__(self, task={}, n_tasks=1, env_type='train', randomize_tasks=True):
-        self._task_sets = ["antgoal0", "antbrid0", "antgath0", "antbox0", "antgoal1", "antbrid1", "antgath1", "antbox1", "antgoal2",
-                           "antbrid2", "antgath2", "antbox2", "antgoal3", "antgath3", "antgath4"]
-        self.task_order = np.arange(15)
+        self._task_sets = ["antgoal0", "antbrid0", "antgath0", "antgoal1", "antbrid1", "antgath1", "antgoal2",
+                           "antbrid2", "antgath2", "antgoal3"]
+        self.task_order = np.arange(10)
         self._task = task
         self.subtaskid = 0
-        #gather 5 ant bridge 3 ant goal 4 antbox 3
-        self.subtasktypes = ["antgoal", "antbridge", "antgather", "antbox", "antgoal", "antbridge", "antgather", "antbox", "antgoal",
-                             "antbridge", "antgather", "antbox",  "antgoal" , "antgather", "antgather"]
+        self.subtasktypes = ["antgoal", "antbridge", "antgather", "antgoal", "antbridge", "antgather", "antgoal",
+                             "antbridge", "antgather", "antgoal"]
         self.env_type = env_type
         # self.tasks = self.sample_tasks(n_tasks)
         # these will get overiden when we call reset_task from the outside.
         self._x_pos_sampler = 0.5
         self._curb_y_pos = 10
         self.random_steps = 1
-        self.max_step = 4000
+        self.max_step = 5000
         self.passing_reward = 10
         self.goal_reward = 20
         self.outside_reward = -5
@@ -41,27 +40,29 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.survive_reward = 0
         self.current_step = 0
         self.windforce = [0, 0, 0]
-        self.coin_pos = [0, 0, 0, 0, 0]
-        self.box_pos = [0, 0, 0]
-        self._box_z_position = 0.5
-        self._init_box_y_position = 8
-        self.coin_reward_weight = 5
+        self.coin_pos = [0, 0, 0]
+        self.coin_reward_weight = 0
         self.substask_succeed_weight = 5
         self.success_reward_weight = 100
-        self.goals_position_y = [25, 51, 67, 93, 118, 144, 160, 186, 211, 237, 253, 279, 304, 320, 336 ]
-        self.offset_y = []
+        self.goals_position_y = [25, 51, 67, 92, 118, 134, 159, 185, 201, 226]
+        self.offset_y = [0 + 10, 25 + 10, 51 + 8, 67 + 10, 92 + 10, 118 + 8, 134 + 10, 159 + 10, 185 + 8, 201 + 10]
+        self.x_pos = (self._x_pos_sampler * 0.8 + 0.1) * 20 - 10
 
-        self.first_coins_get = [0, 0, 0, 0, 0]
-        self.second_coins_get = [0, 0, 0, 0, 0]
+        self.first_coins_get = [0, 0, 0]
+        self.second_coins_get = [0, 0, 0]
+        #self.task_order = np.random.choice(10, 10, replace=False)
+        print("type:", env_type)
+        print("order:", self.task_order)
+        self.task_order = np.array([0,1,2,3,4,5,6,7,8,9])
         self.ob_shape = {"joint": [29]}
         self.ob_type = self.ob_shape.keys()
-        xml_path = os.path.join(os.getcwd(), "./assets/ant-mix-long.xml")
+        xml_path = os.path.join(os.getcwd(), "./assets/ant-mix2.xml")
         mujoco_env.MujocoEnv.__init__(self, xml_path, 5)
         utils.EzPickle.__init__(self)
 
     def step(self, a, skillpolicy=False, id=None):
         # do the simulation and check how much we moved on the y axis
-        #self.render()
+
         yposbefore = self.get_body_com("agent_torso")[1]
         if self.subtasktypes[self.subtaskid] == "antbridge":
             id_bridgetask = int(self._task_sets[self.task_order[self.subtaskid]][-1])
@@ -87,15 +88,13 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         elif self.subtasktypes[self.subtaskid] == "antbridge":
             if distanceToGoalAfter <= 1.2:
                 subtask_succeed = True
-        elif self.subtasktypes[self.subtaskid] == "antbox":
-            if distanceToGoalAfter <= 2:
-                subtask_succeed = True
         else:
             first_coin_distance, second_coin_distance, coin_task_no = self.distance_to_coins()
             if self.first_coins_get[coin_task_no] == 0 and first_coin_distance <= 1.2:
                 get_coin_reward += self.coin_reward_weight
                 self.first_coins_get[coin_task_no] = 1
                 self.put_firstCoin_away(coin_task_no)
+
             if self.second_coins_get[coin_task_no] == 0 and second_coin_distance <= 1.2:
                 get_coin_reward += self.coin_reward_weight
                 self.second_coins_get[coin_task_no] = 1
@@ -115,20 +114,19 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         success = False
         substask_reward = 0
         if subtask_succeed:
-
             self.subtaskid += 1
             substask_reward += self.substask_succeed_weight
         success_reward = 0
-        if self.subtaskid == 15:
+        if self.subtaskid == 10:
             success = True
             done = True
             success_reward += self.success_reward_weight
-            self.subtaskid = 14
+            self.subtaskid = 9
         if not skillpolicy:
             ob = self._get_obs()
         else:
             ob = self._get_obs_sub(id)
-        reward = success_reward + substask_reward #+  get_coin_reward + dense_reward
+        reward = success_reward + substask_reward + get_coin_reward
         return (
             ob,
             reward,
@@ -148,12 +146,12 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             _, _, coin_task_no = self.distance_to_coins()
             return np.concatenate(
                 [
-                    [self.sim.data.qpos.flat[6] / 6],
+                    [self.sim.data.qpos.flat[0] / 6],
                     relative_y,
                     [self.first_coins_get[coin_task_no]],
                     [self.second_coins_get[coin_task_no]],
-                    self.sim.data.qpos.flat[8:],
-                    self.sim.data.qvel.flat[6:] / 5,
+                    self.sim.data.qpos.flat[2:],
+                    self.sim.data.qvel.flat[:] / 5,
 
                 ]
             )
@@ -161,31 +159,16 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             relative_y = np.array([self.offset_y[self.subtaskid] - self.sim.data.get_body_xpos('agent_torso')[1]]) / 10
             return np.concatenate(
                 [
-                    [self.sim.data.qpos.flat[6] / 10],
+                    [self.sim.data.qpos.flat[0] / 10],
                     relative_y,
-                    self.sim.data.qpos.flat[8:],
-                    self.sim.data.qvel.flat[6:] / 5,
-
-                ]
-            )
-        elif id == 3:
-            ith_antbox= int(self._task_sets[self.task_order[self.subtaskid]][-1])
-            if ith_antbox >=3:
-                ith_antbox =2
-            relative_y = np.array([self.offset_y[self.subtaskid] - self.sim.data.get_body_xpos('agent_torso')[1]]) / 10
-            return np.concatenate(
-                [
-                    [(self.sim.data.qpos.flat[self.sim.model.get_joint_qpos_addr('OBJTy'+str(ith_antbox))]-self.offset_y[self.subtaskid])/2],
-                    [np.array(self.sim.data.get_body_xpos('agent_torso')[0]) / 10],
-                    relative_y,
-                    self.sim.data.qpos.flat[9:],
-                    self.sim.data.qvel.flat[7:] / 5,
+                    self.sim.data.qpos.flat[2:],
+                    self.sim.data.qvel.flat[:] / 5,
 
                 ]
             )
 
     def _get_obs(self):
-        task_type_onehot = np.zeros(4)
+        task_type_onehot = np.zeros(3)
         x_pos = 0
         ith_subtask = int(self._task_sets[self.task_order[self.subtaskid]][-1])
         if self.subtasktypes[self.subtaskid] == "antgoal":
@@ -198,43 +181,32 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         elif self.subtasktypes[self.subtaskid] == "antgather":
             x_pos = self.coin_pos[ith_subtask] / 3  # normalization
             task_type_onehot[2] = 1
-        elif self.subtasktypes[self.subtaskid] == "antbox":
-            x_pos = self.coin_pos[ith_subtask] / 3  # normalization
-            task_type_onehot[3] = 1
-
-        task_id_onehot = np.zeros(15)
+        task_id_onehot = np.zeros(10)
         task_id_onehot[self.subtaskid] = 1
         return np.concatenate(
             [
-                #xaxis
-                [self.sim.data.qpos.flat[6] / 10],
-                #yaxis
-                np.array([self.sim.data.get_body_xpos('agent_torso')[1] - 168]) / 16.8,
-
-                self.sim.data.qpos.flat[8:],
-                self.sim.data.qvel.flat[6:] / 5,
+                [self.sim.data.qpos.flat[0] / 10],
+                np.array([self.sim.data.get_body_xpos('agent_torso')[1] - 115]) / 11.5,
+                self.sim.data.qpos.flat[2:],
+                self.sim.data.qvel.flat[:] / 5,
                 task_id_onehot,
             ]
         )
 
     def reset_model(self):
+        self.combine_subtask(fixed=True)
+        self.current_step = 0
+        self.first_coins_get = [0, 0, 0]
+        self.second_coins_get = [0, 0, 0]
+        self.windforce = [-2,0,2]
+        #self.windforce = np.random.uniform(-2, 2, 3)
+        self.corridor_pos = [0, 0, 0, 0]
+        self.coin_pos = [0, 0, 0]
+        self.subtaskid = 0
         qpos = self.init_qpos + self.np_random.uniform(
             size=self.model.nq, low=-0.1, high=0.1
         )
         qvel = self.init_qvel + self.np_random.randn(self.model.nv) * 0.1
-
-        qpos, qvel = self.combine_subtask(qpos, qvel, fixed=True)
-        self.push_box()
-        self.current_step = 0
-        self.first_coins_get = [0, 0, 0, 0, 0]
-        self.second_coins_get = [0, 0, 0, 0, 0]
-        self.windforce = [-2,0,2]
-        #self.windforce = [0,0,0]
-        #self.windforce = np.random.uniform(-2, 2, 3)
-        self.corridor_pos = [0, 0, 0, 0]
-        self.coin_pos = [0, 0, 0, 0, 0]
-        self.box_pos = [0,0,0]
-        self.subtaskid = 0
 
         self.set_state(qpos, qvel)
 
@@ -243,7 +215,7 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         return self._get_obs()
 
-    def combine_subtask(self, qpos, qvel, fixed=True):
+    def combine_subtask(self, fixed=True):
         if not fixed:
             self.task_order = np.random.choice(10, 10, replace=False)
 
@@ -253,7 +225,7 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         last_goal_position = 0
 
         for task_no in self.task_order:
-            if self._task_sets[task_no][:6] == "antgoa":
+            if self._task_sets[task_no][:7] == "antgoal":
                 idx_plane = self.model.geom_name2id("antgoal" + str(self._task_sets[task_no][-1]) + "_plane")
                 idx_curbleft = self.model.geom_name2id("curbleft" + str(self._task_sets[task_no][-1]))
                 idx_curbright = self.model.geom_name2id("curbright" + str(self._task_sets[task_no][-1]))
@@ -266,7 +238,7 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 self.offset_y.append(last_goal_position + 10)
                 self.subtasktypes.append("antgoal")
 
-            elif self._task_sets[task_no][:6] == "antbri":
+            elif self._task_sets[task_no][:7] == "antbrid":
                 idx_frontplane = self.model.geom_name2id(
                     "antbridge" + str(self._task_sets[task_no][-1]) + "_frontplane")
                 idx_rearplane = self.model.geom_name2id("antbridge" + str(self._task_sets[task_no][-1]) + "_rearplane")
@@ -279,39 +251,22 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
                 self.offset_y.append(last_goal_position + 10)
                 self.subtasktypes.append("antbridge")
 
-            elif self._task_sets[task_no][:6] == "antgat":
+            elif self._task_sets[task_no][:7] == "antgath":
 
                 idx_plane = self.model.geom_name2id("antgather" + str(self._task_sets[task_no][-1]) + "_plane")
                 self.sim.model.geom_pos[idx_plane][1] = last_goal_position + ANT_GATHER_LENGTH / 2
                 coin1 = "coin_geom1_" + str(self._task_sets[task_no][-1])
                 coin2 = "coin_geom2_" + str(self._task_sets[task_no][-1])
                 ith_antgather = int(self._task_sets[task_no][-1])
-
                 self.set_coins(last_goal_position, coin1, coin2, ith_antgather)
                 self.goals_position_y.append(ANT_GATHER_LENGTH + last_goal_position)
                 self.offset_y.append(last_goal_position + 8)
                 self.subtasktypes.append("antgather")
-            elif self._task_sets[task_no][:6] == "antbox":
-                idx_frontplane = self.model.geom_name2id(
-                    "antbox" + str(self._task_sets[task_no][-1]) + "_frontplane")
-                idx_backplane = self.model.geom_name2id(
-                    "antbox" + str(self._task_sets[task_no][-1]) + "_backplane")
-                idx_midplane = self.model.geom_name2id(
-                    "antbox" + str(self._task_sets[task_no][-1]) + "_midplane")
-                ith_antbox = int(self._task_sets[task_no][-1])
 
-                qpos, qvel = self.put_box(last_goal_position, ith_antbox, qpos, qvel)
-                self.sim.model.geom_pos[idx_frontplane][1] = last_goal_position + 5
-                self.sim.model.geom_pos[idx_backplane][1] = last_goal_position + 20
-                self.sim.model.geom_pos[idx_midplane][1]  = last_goal_position + 12
-                self.goals_position_y.append(ANT_BOX_LENGTH + last_goal_position)
-                self.offset_y.append(last_goal_position + 10)
-                self.subtasktypes.append("antbox")
             else:
                 raise NameError('Wrong subtask type')
 
             last_goal_position = self.goals_position_y[-1]
-        return qpos, qvel
 
     def set_coins(self, start_position, coin1, coin2, ith_antgather):
         idx1 = self.model.geom_name2id(coin1)
@@ -320,16 +275,11 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         if ith_antgather == 0:
             first_coin_x_position = 3
         elif ith_antgather == 1:
-            first_coin_x_position =  2
+            first_coin_x_position = 2
         elif ith_antgather == 2:
-            first_coin_x_position =  1
-        elif ith_antgather == 3:
-            first_coin_x_position =  -2
-        elif ith_antgather == 4:
-            first_coin_x_position =  -1
+            first_coin_x_position = 1
         else:
-            first_coin_x_position = -100
-            raise NameError('Wrong subtask type')
+            first_coin_x_position = -1
         #first_coin_x_position = np.random.uniform(-3, 3)
         first_coin_position = (first_coin_x_position, 5)
         second_coin_position = (-first_coin_x_position, 11)
@@ -342,60 +292,37 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def viewer_setup(self):
         self.viewer.cam.distance = self.model.stat.extent * 0.5
 
-    #add a force on the top of each box
-    def push_box(self):
-        box0_index = self.sim.model._body_name2id["box0"]
-        box1_index = self.sim.model._body_name2id["box1"]
-        box2_index = self.sim.model._body_name2id["box2"]
-        self.sim.data.xfrc_applied[box0_index][2] = -100
-        self.sim.data.xfrc_applied[box1_index][2] = -100
-        self.sim.data.xfrc_applied[box2_index][2] = -100
-
-    def put_box(self, last_goal_position, ith_antbox, qpos, qvel):
-        pos_y_joint, pos_z_joint  = self.get_box_joint_pos(ith_antbox)
-        vel_y_joint, vel_z_joint = self.get_box_joint_vel(ith_antbox)
-        if ith_antbox == 0:
-            box_x_position = 6
-        elif ith_antbox ==1:
-            box_x_position = 6
-        elif ith_antbox == 2:
-            box_x_position = 6
-        else:
-            box_x_position = 0# -20
-            raise NameError('Wrong box number')
-
-        self.box_pos[ith_antbox] = box_x_position
-        self.model.body_pos[self.model.body_name2id("box" + str(ith_antbox))][0] = box_x_position
-        qpos[pos_y_joint] = self._init_box_y_position + last_goal_position
-        qpos[pos_z_joint] = self._box_z_position
-
-        qvel[vel_y_joint] = 0
-        qvel[vel_z_joint] = 0
-        return qpos, qvel
-
-    def get_box_joint_pos(self, ith_antbox):
-
-        joint_OBJTy = self.sim.model.get_joint_qpos_addr('OBJTy'+str(ith_antbox))
-        joint_OBJTz = self.sim.model.get_joint_qpos_addr('OBJTz'+str(ith_antbox))
-        return joint_OBJTy, joint_OBJTz
-        #return joint_OBJTx, joint_OBJTy, joint_OBJTz
-
-    def get_box_joint_vel(self, ith_antbox):
-        # joint_OBJTx = self.sim.model.get_joint_qvel_addr('OBJTx')
-        joint_OBJTy = self.sim.model.get_joint_qvel_addr('OBJTy'+str(ith_antbox))
-        joint_OBJTz = self.sim.model.get_joint_qvel_addr('OBJTz'+str(ith_antbox))
-        return joint_OBJTy, joint_OBJTz
-        #return joint_OBJTx, joint_OBJTy, joint_OBJTz
-
     def wind_force(self, force):
         torso_index = self.sim.model._body_name2id["agent_torso"]
         self.sim.data.xfrc_applied[torso_index][0] = force
 
+    def collision_detection(self, ref_name=None, body_name=None):
+        assert ref_name is not None
+        mjcontacts = self.data.contact
+
+        ncon = self.data.ncon
+        collision = False
+        for i in range(ncon):
+            ct = mjcontacts[i]
+            g1, g2 = ct.geom1, ct.geom2
+            g1 = self.model.geom_names[g1]
+            g2 = self.model.geom_names[g2]
+
+            if body_name is not None:
+                if (g1.find(ref_name) >= 0 or g2.find(ref_name) >= 0) and \
+                        (g1.find(body_name) >= 0 or g2.find(body_name) >= 0):
+                    collision = True
+                    break
+            else:
+                if (g1.find(ref_name) >= 0 or g2.find(ref_name) >= 0):
+                    collision = True
+                    break
+        return collision
 
     def distance_to_coins(self):
 
         coin_task_no = int(self._task_sets[self.task_order[self.subtaskid]][-1])
-        if coin_task_no >= 5:
+        if coin_task_no >= 3:
             coin_task_no = 2
         firstcoin_name = "coin_geom1_" + str(coin_task_no)
         secondcoin_name = "coin_geom2_" + str(coin_task_no)
@@ -462,3 +389,6 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         agent_y = self.get_body_com("agent_torso")[1]
         distance = math.sqrt((goal_x - agent_x) ** 2 + (goal_y - agent_y) ** 2)
         return distance
+
+
+

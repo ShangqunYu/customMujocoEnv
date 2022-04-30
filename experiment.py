@@ -8,27 +8,32 @@ https://www.roboti.us/forum/index.php?threads/can-mujoco-dynamically-generate-mo
 
 '''
 
-
-from ant_easybox import AntEasyBoxEnv
 from ant_mixed_long import AntMixLongEnv
-from ant_box import AntBoxEnv
-from box_pushing_env import BoxPushingEnv
-from custom_ant_goal import CustomMujocoEnv
-import gym
-import time
-import numpy as np
-
+from ant_mixed_new import AntMixEnv
+import argparse
 import sys
-sys.path.append('/home/simon/Downloads/stable-baselines3')
 from stable_baselines3 import SAC
 
-
-env = AntMixLongEnv()
+parser = argparse.ArgumentParser()
+parser.add_argument("--logdir",
+                    required=False,
+                    default="run0",
+                    type=str)
+parser.add_argument("--env",
+                    required=True,
+                    choices=['antmix', 'antmixlong'],
+                    type=str)
+args, unknown = parser.parse_known_args()
+logpath = "./logs/" + args.logdir
+if args.env =="antmix":
+    env = AntMixEnv()
+else:
+    env = AntMixLongEnv()
 
 
 obs = env.reset()
 
 
 model = SAC("MlpPolicy",  env, learning_starts=10000, verbose=1)
-model.learn(total_timesteps=2000000, eval_env=env, eval_freq= 10000, n_eval_episodes=10,log_interval=4, eval_log_path="./logs")
+model.learn(total_timesteps=2000000, eval_env=env, eval_freq= 10000, n_eval_episodes=10,log_interval=4, eval_log_path=logpath)
 model.save("sac_reactive_control")
