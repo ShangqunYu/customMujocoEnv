@@ -166,8 +166,11 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         goal_reward = 0
         success = False
         substask_reward = 0
+        if not skillpolicy:
+            ob = self._get_obs()
+        else:
+            ob = self._get_obs_sub(id)
         if subtask_succeed:
-
             self.subtaskid += 1
             substask_reward += self.substask_succeed_weight
         success_reward = 0
@@ -176,10 +179,7 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             done = True
             success_reward += self.success_reward_weight
             self.subtaskid = 14
-        if not skillpolicy:
-            ob = self._get_obs()
-        else:
-            ob = self._get_obs_sub(id)
+
         reward = success_reward + substask_reward + get_coin_reward + dense_reward
         return (
             ob,
@@ -257,8 +257,14 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
         task_id_onehot = np.zeros(15)
         task_id_onehot[self.subtaskid] = 1
+        if self.subtasktypes[self.subtaskid] == "antbox":
+            antboxpose =[(self.sim.data.qpos.flat[self.sim.model.get_joint_qpos_addr('OBJTy'+str(ith_antbox))]-self.offset_y[self.subtaskid])/2]
+        else:
+            antboxpose = [-5]
+
         return np.concatenate(
             [
+                antboxpose,
                 #xaxis
                 [self.sim.data.qpos.flat[6] / 10],
                 #yaxis
