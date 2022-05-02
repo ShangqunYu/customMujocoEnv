@@ -27,7 +27,7 @@ class AntMixEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._x_pos_sampler = 0.5
         self._curb_y_pos = 10
         self.random_steps = 1
-        self.max_step = 5000
+        self.max_step = 3500
         self.passing_reward = 10
         self.goal_reward = 20
         self.outside_reward = -5
@@ -147,7 +147,7 @@ class AntMixEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             ob = self._get_obs()
         else:
             ob = self._get_obs_sub(id)
-        reward = success_reward + substask_reward + get_coin_reward + dense_reward
+        reward = success_reward + substask_reward*2 + get_coin_reward + dense_reward
         return (
             ob,
             reward,

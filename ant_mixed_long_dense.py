@@ -28,7 +28,7 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self._x_pos_sampler = 0.5
         self._curb_y_pos = 10
         self.random_steps = 1
-        self.max_step = 4000
+        self.max_step = 5000
         self.passing_reward = 10
         self.passing_door = [0, 0, 0, 0]
         self._next_to_box = [0, 0, 0]
@@ -178,9 +178,9 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             success = True
             done = True
             success_reward += self.success_reward_weight
-            self.subtaskid = 14
+            #self.subtaskid = 14
 
-        reward = success_reward + substask_reward + get_coin_reward + dense_reward
+        reward = success_reward + substask_reward*2 + get_coin_reward + dense_reward
         return (
             ob,
             reward,
@@ -240,23 +240,24 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
     def _get_obs(self):
         task_type_onehot = np.zeros(4)
         x_pos = 0
-        ith_subtask = int(self._task_sets[self.task_order[self.subtaskid]][-1])
-        if self.subtasktypes[self.subtaskid] == "antgoal":
-            task_type_onehot[0] = 1
-            x_pos = self.corridor_pos[ith_subtask] / 3  # normalization
-
-        elif self.subtasktypes[self.subtaskid] == "antbridge":
-            task_type_onehot[1] = 1
-            x_pos = self.windforce[ith_subtask] / 2  # normalization
-        elif self.subtasktypes[self.subtaskid] == "antgather":
-            x_pos = self.coin_pos[ith_subtask] / 3  # normalization
-            task_type_onehot[2] = 1
-        elif self.subtasktypes[self.subtaskid] == "antbox":
-            x_pos = self.coin_pos[ith_subtask] / 3  # normalization
-            task_type_onehot[3] = 1
+        # ith_subtask = int(self._task_sets[self.task_order[self.subtaskid]][-1])
+        # if self.subtasktypes[self.subtaskid] == "antgoal":
+        #     task_type_onehot[0] = 1
+        #     x_pos = self.corridor_pos[ith_subtask] / 3  # normalization
+        #
+        # elif self.subtasktypes[self.subtaskid] == "antbridge":
+        #     task_type_onehot[1] = 1
+        #     x_pos = self.windforce[ith_subtask] / 2  # normalization
+        # elif self.subtasktypes[self.subtaskid] == "antgather":
+        #     x_pos = self.coin_pos[ith_subtask] / 3  # normalization
+        #     task_type_onehot[2] = 1
+        # elif self.subtasktypes[self.subtaskid] == "antbox":
+        #     x_pos = self.coin_pos[ith_subtask] / 3  # normalization
+        #     task_type_onehot[3] = 1
 
         task_id_onehot = np.zeros(15)
-        task_id_onehot[self.subtaskid] = 1
+        if self.subtaskid!=15:
+            task_id_onehot[self.subtaskid] = 1
         if self.subtasktypes[self.subtaskid] == "antbox":
             antboxpose =[(self.sim.data.qpos.flat[self.sim.model.get_joint_qpos_addr('OBJTy'+str(ith_antbox))]-self.offset_y[self.subtaskid])/2]
         else:
@@ -389,7 +390,7 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         elif ith_antgather == 3:
             first_coin_x_position =  -2
         elif ith_antgather == 4:
-            first_coin_x_position =  -1
+            first_coin_x_position =  -3
         else:
             first_coin_x_position = -100
             raise NameError('Wrong subtask type')
