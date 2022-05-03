@@ -7,8 +7,8 @@ Can MUJOCO dynamically generate models？
 https://www.roboti.us/forum/index.php?threads/can-mujoco-dynamically-generate-models%EF%BC%9F.4224/
 
 '''
-from custom_ant_goal import CustomMujocoEnv
-from ant_mixed_long import AntMixLongEnv
+from ant_mixed_long_dense import AntMixLongEnv
+from ant_mixed_new_dense import AntMixEnv
 import gym
 import time
 import numpy as np
@@ -17,12 +17,22 @@ import sys
 from ant_box import AntBoxEnv
 #sys.path.append('/home/simon/Downloads/stable-baselines3')
 from stable_baselines3 import SAC
+import argparse
 
-env = AntMixLongEnv()
+parser = argparse.ArgumentParser()
+parser.add_argument("--env",
+                    required=True,
+                    choices=['antmix', 'antmixlong'],
+                    type=str)
+args, unknown = parser.parse_known_args()
 
+if args.env =="antmix":
+    env = AntMixEnv()
+else:
+    env = AntMixLongEnv()
 
 obs = env.reset()
-model = SAC.load("logs/best_model")
+model = SAC.load("logs/antmix_dense_seed1/best_model")
 number_eval = 50
 all_reward = []
 no_success = 0

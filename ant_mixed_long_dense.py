@@ -42,6 +42,7 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
             self.corridor_width = 3
         self.corridor_pos = [0, 0, 0, 0]
         self.survive_reward = 0
+        self.count_down = 0
         self.current_step = 0
         self.windforce = [0, 0, 0]
         self.coin_pos = [0, 0, 0, 0, 0]
@@ -81,7 +82,7 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         distanceToBoxBefore = self.box_distance_to_ant(id_subtask, self.offset_y[self.subtaskid])
         distanceToCliffBefore = self.distance_to_cliff_end(id_subtask, self.offset_y[self.subtaskid])
         self.do_simulation(a, self.frame_skip)
-        self.current_step += 1
+
         agent_xpos, agent_ypos, agent_zpos = self.get_body_com("agent_torso")
         distanceToGoalAfter = self.distance_to_goal(self.goals_position_y[self.subtaskid])
         forward_speed_x = (agent_xpos - xposbefore) / self.dt
@@ -160,6 +161,9 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         state = self.state_vector()
         # check when we need to finish the current episode
         done = False
+        self.count_down += 1
+        if self.count_down >500:
+            done = True
         self.current_step += 1
         if tipped_over or self.current_step >= self.max_step:
             done = True
@@ -171,6 +175,7 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         else:
             ob = self._get_obs_sub(id)
         if subtask_succeed:
+            self.count_down = 0
             self.subtaskid += 1
             substask_reward += self.substask_succeed_weight
         success_reward = 0
@@ -299,7 +304,7 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         self.coin_pos = [0, 0, 0, 0, 0]
         self.box_pos = [0,0,0]
         self.subtaskid = 0
-
+        self.count_down = 0
         self.set_state(qpos, qvel)
 
         # for _ in range(int(self.random_steps)):
