@@ -41,6 +41,6 @@ obs = env.reset()
 
 model = SAC("MlpPolicy",  env, learning_starts=10000, verbose=2)
 model.set_logger(new_logger)
-model.learn(total_timesteps=2000000, eval_env=env, eval_freq= 10000,
-            n_eval_episodes=10,log_interval=4, eval_log_path=logpath)
+model.learn(total_timesteps=20000000, eval_env=env, eval_freq= 20000,
+            n_eval_episodes=5,log_interval=10, eval_log_path=logpath)
 model.save("sac_reactive_control")
