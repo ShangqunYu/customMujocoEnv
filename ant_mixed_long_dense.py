@@ -264,6 +264,9 @@ class AntMixLongEnv(mujoco_env.MujocoEnv, utils.EzPickle):
         if self.subtaskid!=15:
             task_id_onehot[self.subtaskid] = 1
         if self.subtasktypes[self.subtaskid] == "antbox":
+            ith_antbox= int(self._task_sets[self.task_order[self.subtaskid]][-1])
+            if ith_antbox >=3:
+                ith_antbox =2
             antboxpose =[(self.sim.data.qpos.flat[self.sim.model.get_joint_qpos_addr('OBJTy'+str(ith_antbox))]-self.offset_y[self.subtaskid])/2]
         else:
             antboxpose = [-5]
